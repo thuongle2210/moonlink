@@ -3,6 +3,7 @@ use crate::MoonlinkSecretType;
 use crate::MoonlinkTableSecret;
 use serde::{Deserialize, Serialize};
 
+#[allow(dead_code)]
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct WriteOption {
     /// Used to overwrite write option.
