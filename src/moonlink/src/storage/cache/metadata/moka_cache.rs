@@ -23,6 +23,7 @@ use moka::future::Cache;
 /// - **Asynchronous operations**: all API methods are `async`.
 ///
 pub struct MokaCache<K, V> {
+    #[allow(dead_code)]
     pub(crate) cache: Cache<K, V>,
 }
 
