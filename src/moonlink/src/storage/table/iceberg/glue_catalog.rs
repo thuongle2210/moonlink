@@ -23,6 +23,7 @@ use iceberg_catalog_glue::{
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct GlueCatalog {
     pub(crate) catalog: IcebergGlueCatalog,
     /// Similar to opendal operator, which also provides an abstraction above different storage backends.

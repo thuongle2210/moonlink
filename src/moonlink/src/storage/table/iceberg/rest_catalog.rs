@@ -25,6 +25,7 @@ pub struct RestCatalog {
     /// Similar to opendal operator, which also provides an abstraction above different storage backends.
     file_io: FileIO,
     /// Table location.
+    #[allow(dead_code)]
     warehouse_location: String,
     /// Used to overwrite iceberg metadata at table creation.
     iceberg_schema: Option<IcebergSchema>,
