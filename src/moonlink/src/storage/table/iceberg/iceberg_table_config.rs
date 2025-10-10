@@ -4,6 +4,7 @@ use crate::{storage::filesystem::accessor_config::AccessorConfig, StorageConfig}
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+#[allow(dead_code)]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RestCatalogConfig {
     #[serde(rename = "name")]
