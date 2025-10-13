@@ -19,6 +19,8 @@ use smallvec::SmallVec;
 use tempfile::TempDir;
 use tokio::sync::RwLock;
 use uuid::Uuid;
+use futures::FutureExt;
+
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct CacheEntryWrapper {
@@ -65,6 +67,10 @@ impl ObjectStorageCacheInternal {
         tolerate_insufficiency: bool,
     ) -> (bool, Vec<String>) {
         let mut evicted_files_to_delete = vec![];
+        println!("cur_bytes: {:?}", self.cur_bytes);
+        println!("max_bytes: {:?}", max_bytes);
+        println!("tolerate_insufficiency: {:?}", tolerate_insufficiency);
+        println!("evictable_cache: {:?}", self.evictable_cache);
         while self.cur_bytes > max_bytes {
             if self.evictable_cache.is_empty() {
                 assert!(
@@ -693,5 +699,34 @@ mod tests {
         );
         check_directory_file_count(&cache_file_directory, 0).await;
         check_directory_file_count(&remote_file_directory, PARALLEL_TASK_NUM).await;
+    }
+    #[tokio::test]
+    async fn test_evict_cache_entries_reduces_bytes_and_files() {
+        let cache_file_directory = tempdir().unwrap();
+        let test_cache_file =
+            create_test_file(cache_file_directory.path(), TEST_CACHE_FILENAME_1).await;
+
+        let config = ObjectStorageCacheConfig {
+            max_bytes: CONTENT.len() as u64 / 2, // smaller cache size to ensure eviction
+            cache_directory: cache_file_directory.path().to_str().unwrap().to_string(),
+            optimize_local_filesystem: false,
+        };
+        let cache = ObjectStorageCache::new(config);
+
+        // Import cache entry (larger than max_bytes)
+        let cache_entry = CacheEntry {
+            cache_filepath: test_cache_file.to_str().unwrap().to_string(),
+            file_metadata: FileMetadata {
+                file_size: CONTENT.len() as u64,
+            },
+        };
+        let file_id = get_table_unique_file_id(0);
+        let panic_result = std::panic::AssertUnwindSafe(async {
+            cache.import_cache_entry(file_id, cache_entry.clone()).await;
+        })
+        .catch_unwind()
+        .await;
+    
+        assert!(panic_result.is_err(), "Expected panic due to insufficient eviction");
     }
 }
