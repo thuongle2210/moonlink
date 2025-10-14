@@ -1,9 +1,11 @@
-#[cfg(feature = "catalog-glue")]
+#[cfg(all(feature = "catalog-glue", feature = "storage-s3"))]
 use crate::storage::table::iceberg::cloud_security_config::CloudSecurityConfig;
 use crate::{storage::filesystem::accessor_config::AccessorConfig, StorageConfig};
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "catalog-rest")]
 use std::collections::HashMap;
 
+#[cfg(feature = "catalog-rest")]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RestCatalogConfig {
     #[serde(rename = "name")]
@@ -33,7 +35,7 @@ pub struct RestCatalogConfig {
     pub props: HashMap<String, String>,
 }
 
-#[cfg(feature = "catalog-glue")]
+#[cfg(all(feature = "catalog-glue", feature = "storage-s3"))]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct GlueCatalogConfig {
     /// ========================
@@ -84,7 +86,7 @@ pub enum IcebergCatalogConfig {
         rest_catalog_config: RestCatalogConfig,
     },
 
-    #[cfg(feature = "catalog-glue")]
+    #[cfg(all(feature = "catalog-glue", feature = "storage-s3"))]
     #[serde(rename = "glue")]
     Glue {
         glue_catalog_config: GlueCatalogConfig,
@@ -99,7 +101,7 @@ impl IcebergCatalogConfig {
             IcebergCatalogConfig::Rest {
                 rest_catalog_config,
             } => rest_catalog_config.warehouse.clone(),
-            #[cfg(feature = "catalog-glue")]
+            #[cfg(all(feature = "catalog-glue", feature = "storage-s3"))]
             IcebergCatalogConfig::Glue {
                 glue_catalog_config,
             } => glue_catalog_config.warehouse.clone(),
@@ -125,7 +127,7 @@ impl IcebergCatalogConfig {
         None
     }
 
-    #[cfg(feature = "catalog-glue")]
+    #[cfg(all(feature = "catalog-glue", feature = "storage-s3"))]
     pub fn get_glue_catalog_config(&self) -> Option<GlueCatalogConfig> {
         if let IcebergCatalogConfig::Glue {
             glue_catalog_config,
