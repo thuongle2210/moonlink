@@ -395,7 +395,10 @@ impl TableHandler {
                             // flush if needed
                             if let Some(commit_lsn) = table_handler_state.table_consistent_view_lsn
                             {
-                                println!("in PeriodicalMooncakeTableSnapshot, commit_lsn={:?}", commit_lsn);
+                                println!(
+                                    "in PeriodicalMooncakeTableSnapshot, commit_lsn={:?}",
+                                    commit_lsn
+                                );
                                 if table_handler_state
                                     .should_force_flush(commit_lsn, table.get_last_flush_lsn())
                                 {
@@ -757,7 +760,7 @@ impl TableHandler {
                                         .unwrap();
                                     println!("highest_lsn: {:?}", highest_lsn);
                                 }
-                                
+
                                 table_handler_state.wal_persist_ongoing = false;
 
                                 // Check whether need to drop table.

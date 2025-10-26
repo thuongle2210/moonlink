@@ -1095,7 +1095,10 @@ impl WalManager {
             .files_to_persist
             .as_ref()
             .map(|(_, wal_file_info)| wal_file_info.highest_lsn);
-        println!("in handle_complete_wal_persistence_update: highest_lsn: {:?}", highest_lsn);
+        println!(
+            "in handle_complete_wal_persistence_update: highest_lsn: {:?}",
+            highest_lsn
+        );
         highest_lsn
     }
 

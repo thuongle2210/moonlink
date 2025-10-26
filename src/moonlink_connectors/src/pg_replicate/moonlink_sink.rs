@@ -216,7 +216,10 @@ impl Sink {
                 for table_id in &self.transaction_state.touched_tables {
                     let event_sender = self.event_senders.get(table_id);
                     if let Some(commit_lsn_tx) = self.commit_lsn_txs.get(table_id).cloned() {
-                        println!("in process_cdc_event: send commit {:?}", commit_body.end_lsn());
+                        println!(
+                            "in process_cdc_event: send commit {:?}",
+                            commit_body.end_lsn()
+                        );
                         if let Err(e) = commit_lsn_tx.send(commit_body.end_lsn()) {
                             warn!(error = ?e, "failed to send commit lsn");
                         }

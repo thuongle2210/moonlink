@@ -1058,7 +1058,7 @@ impl MooncakeTable {
                 .send(MooncakeTableEvent::MooncakeSnapshotInitiation(table_event))
                 .unwrap();
         }
-        
+
         // Check invariant: there should be at most one ongoing mooncake snapshot.
         assert!(
             !self
@@ -1069,7 +1069,7 @@ impl MooncakeTable {
             .mooncake_snapshot_ongoing = true;
 
         self.next_snapshot_task.new_rows = Some(self.mem_slice.get_latest_rows());
-        
+
         let mut next_snapshot_task = std::mem::take(&mut self.next_snapshot_task);
 
         // Re-initialize mooncake table fields.
@@ -1088,9 +1088,18 @@ impl MooncakeTable {
         let table_notify = self.table_notify.as_ref().unwrap().clone();
         let snapshot_stats = self.snapshot_stats.clone();
 
-        println!("create_snapshot_impl debug 3: self.next_snapshot_task.commit_lsn_baseline {:?}", self.next_snapshot_task.commit_lsn_baseline);
-        println!("create_snapshot_impl debug 3: self.next_snapshot_task.prev_commit_lsn_baseline {:?}", self.next_snapshot_task.prev_commit_lsn_baseline);
-        println!("create_snapshot_impl debug 3: self.next_snapshot_task.min_ongoing_flush_lsn {:?}", self.next_snapshot_task.min_ongoing_flush_lsn);
+        println!(
+            "create_snapshot_impl debug 3: self.next_snapshot_task.commit_lsn_baseline {:?}",
+            self.next_snapshot_task.commit_lsn_baseline
+        );
+        println!(
+            "create_snapshot_impl debug 3: self.next_snapshot_task.prev_commit_lsn_baseline {:?}",
+            self.next_snapshot_task.prev_commit_lsn_baseline
+        );
+        println!(
+            "create_snapshot_impl debug 3: self.next_snapshot_task.min_ongoing_flush_lsn {:?}",
+            self.next_snapshot_task.min_ongoing_flush_lsn
+        );
         // Create a detached task, whose completion will be notified separately.
         tokio::task::spawn(async move {
             println!("spawn detached create_snapshot_async");
