@@ -3,10 +3,11 @@ use crate::storage::MooncakeTable;
 use crate::storage::SnapshotTableState;
 use crate::ReadState;
 use crate::ReadStateFilepathRemap;
-use more_asserts as ma;
+use more_asserts::assert_le;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use tokio::sync::{watch, RwLock};
+use crate::Error;
 
 /// LSN, which indicates there're no preceding read operations.
 const NO_READ_LSN: u64 = u64::MAX;
@@ -16,6 +17,9 @@ const NO_CACHE_LSN: u64 = u64::MAX;
 const NO_SNAPSHOT_LSN: u64 = u64::MAX;
 /// Commit LSN, which indicates there's no commit.
 const NO_COMMIT_LSN: u64 = 0;
+/// Max read snapshot retries
+const MAX_READ_SNAPSHOT_RETRIES: i32 = 1;
+
 
 pub struct ReadStateManager {
     last_read_lsn: AtomicU64,
@@ -36,6 +40,7 @@ impl ReadStateManager {
         read_state_filepath_remap: ReadStateFilepathRemap,
     ) -> Self {
         let (table_snapshot, table_snapshot_watch_receiver) = table.get_state_for_reader();
+        println!("in ReadStateManager, table_snapshot_watch_receiver: {:?} and last_commit_lsn_rx: {:?}", table_snapshot_watch_receiver, last_commit_lsn_rx);
         ReadStateManager {
             last_read_lsn: AtomicU64::new(NO_READ_LSN),
             last_read_state: RwLock::new(Arc::new(ReadState::new(
@@ -92,7 +97,10 @@ impl ReadStateManager {
         let cached_lsn = self.last_read_lsn.load(Ordering::Relaxed);
         let snapshot_lsn_now = *self.table_snapshot_watch_receiver.borrow();
         let commit_lsn_now = *self.last_commit_lsn_rx.borrow();
-
+        // println!("requested_lsn: {:?}", requested_lsn);
+        // println!("cached_lsn: {:?}", cached_lsn);
+        // println!("snapshot_lsn_now: {:?}", snapshot_lsn_now);
+        // println!("commit_lsn_now: {:?}", commit_lsn_now);
         let use_cache =
             Self::should_use_cache(requested_lsn, cached_lsn, snapshot_lsn_now, commit_lsn_now);
 
@@ -103,17 +111,27 @@ impl ReadStateManager {
         let mut table_snapshot_rx = self.table_snapshot_watch_receiver.clone();
         let mut replication_lsn_rx = self.replication_lsn_rx.clone();
         let last_commit_lsn = self.last_commit_lsn_rx.clone();
+        // println!("table_snapshot_rx: {:?}", table_snapshot_rx);
+        // println!("replication_lsn_rx: {:?}", replication_lsn_rx);
+        // println!("last_commit_lsn: {:?}", last_commit_lsn);
 
+        let mut retries_number: i32 = 0;
         loop {
             let current_snapshot_lsn = *table_snapshot_rx.borrow();
             let last_commit_lsn_val = *last_commit_lsn.borrow();
             let current_replication_lsn = *replication_lsn_rx.borrow();
-
+            println!("in loop: last_commit_lsn_val: {:?}", last_commit_lsn_val);
+            println!("in loop: current_replication_lsn: {:?}", current_replication_lsn);
+            assert_le!(retries_number, 10);
+            if retries_number>=1 {
+                println!("retries {:?} times", retries_number);
+            }
             if self.can_satisfy_read_from_snapshot(
                 requested_lsn,
                 current_snapshot_lsn,
                 current_replication_lsn,
                 last_commit_lsn_val,
+                &mut retries_number
             ) {
                 return self
                     .read_from_snapshot_and_update_cache(
@@ -133,19 +151,41 @@ impl ReadStateManager {
         }
     }
 
+    #[inline]
+    fn validate_lsn_ordering(snapshot_lsn: u64, commit_lsn: u64, replication_lsn: u64) -> Result<()> {
+        // validate right ordering lsn: snapshot_lsn<=commit_lsn<=replication_lsn
+        if snapshot_lsn != NO_SNAPSHOT_LSN && commit_lsn != NO_COMMIT_LSN {
+            if snapshot_lsn > commit_lsn {
+                return Err(Error::read_validation_error(format!("snapshot_lsn > commit_lsn: {} > {}", snapshot_lsn, commit_lsn)));
+            }
+        }
+        if commit_lsn > replication_lsn {
+            return Err(Error::read_validation_error(format!("commit_lsn > replication_lsn: {} > {}", commit_lsn, replication_lsn)));
+
+        }
+        Ok(())
+    }
+
     fn can_satisfy_read_from_snapshot(
         &self,
         requested_lsn: Option<u64>,
         snapshot_lsn: u64,
         replication_lsn: u64,
         commit_lsn: u64,
+        retries_number: &mut i32
     ) -> bool {
         // Sanity check on read side: iceberg snapshot LSN <= mooncake snapshot LSN <= commit LSN <= replication LSN
-        if snapshot_lsn != NO_SNAPSHOT_LSN && commit_lsn != NO_COMMIT_LSN {
-            ma::assert_le!(snapshot_lsn, commit_lsn);
+        match Self::validate_lsn_ordering(snapshot_lsn, commit_lsn, replication_lsn) {
+            Ok(_) => {}, // success
+            Err(err) => {
+                *retries_number += 1;
+                if *retries_number >= MAX_READ_SNAPSHOT_RETRIES {
+                    panic!("Error after {} retries: {}", retries_number, err);
+                }
+                return false;
+            }
         }
-        ma::assert_le!(commit_lsn, replication_lsn);
-
+    
         // Check snapshot readability.
         let is_snapshot_clean = Self::snapshot_is_clean(snapshot_lsn, commit_lsn);
         let is_snapshot_initialized = snapshot_lsn != NO_SNAPSHOT_LSN;

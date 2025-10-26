@@ -1048,15 +1048,17 @@ impl MooncakeTable {
 
     // Create a snapshot of the last committed version, return current snapshot's version and payload to perform iceberg snapshot.
     fn create_snapshot_impl(&mut self, opt: SnapshotOption) {
+        println!("create_snapshot_impl debug 1");
         // Record mooncake snapshot event initiation.
         if let Some(event_replay_tx) = &self.event_replay_tx {
+            println!("create_snapshot_impl debug 2: record replay events");
             let table_event =
                 replay_events::create_mooncake_snapshot_event_initiation(opt.uuid, opt.clone());
             event_replay_tx
                 .send(MooncakeTableEvent::MooncakeSnapshotInitiation(table_event))
                 .unwrap();
         }
-
+        
         // Check invariant: there should be at most one ongoing mooncake snapshot.
         assert!(
             !self
@@ -1067,6 +1069,7 @@ impl MooncakeTable {
             .mooncake_snapshot_ongoing = true;
 
         self.next_snapshot_task.new_rows = Some(self.mem_slice.get_latest_rows());
+        
         let mut next_snapshot_task = std::mem::take(&mut self.next_snapshot_task);
 
         // Re-initialize mooncake table fields.
@@ -1084,8 +1087,13 @@ impl MooncakeTable {
 
         let table_notify = self.table_notify.as_ref().unwrap().clone();
         let snapshot_stats = self.snapshot_stats.clone();
+
+        println!("create_snapshot_impl debug 3: self.next_snapshot_task.commit_lsn_baseline {:?}", self.next_snapshot_task.commit_lsn_baseline);
+        println!("create_snapshot_impl debug 3: self.next_snapshot_task.prev_commit_lsn_baseline {:?}", self.next_snapshot_task.prev_commit_lsn_baseline);
+        println!("create_snapshot_impl debug 3: self.next_snapshot_task.min_ongoing_flush_lsn {:?}", self.next_snapshot_task.min_ongoing_flush_lsn);
         // Create a detached task, whose completion will be notified separately.
         tokio::task::spawn(async move {
+            println!("spawn detached create_snapshot_async");
             let _latency_guard = snapshot_stats.start();
             Self::create_snapshot_async(cur_snapshot, next_snapshot_task, opt, table_notify)
                 .instrument(info_span!("create_snapshot_async"))

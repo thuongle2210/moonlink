@@ -1,0 +1,135 @@
+
+running 1 test
+in ReadStateManager, table_snapshot_watch_receiver: Receiver { shared: Shared { value: RwLock(PhantomData<std::sync::poison::rwlock::RwLock<u64>>, RwLock { data: 18446744073709551615 }), version: Version(0), is_closed: false, ref_count_rx: 2 }, version: Version(0) } and last_commit_lsn_rx: Receiver { shared: Shared { value: RwLock(PhantomData<std::sync::poison::rwlock::RwLock<u64>>, RwLock { data: 0 }), version: Version(0), is_closed: false, ref_count_rx: 1 }, version: Version(0) }
+event handle: ForceSnapshot { lsn: None }
+event handle: PeriodicalPersistenceUpdateWal(7861fce8-8562-4160-8e12-da076bbba972)
+event handle: PeriodicalMooncakeTableSnapshot(51df0362-e032-4c55-a1f1-402267c1d9b5)
+requested_lsn: Some(1340855488)
+cached_lsn: 18446744073709551615
+snapshot_lsn_now: 18446744073709551615
+commit_lsn_now: 1340855488
+event handle: Append { row: MoonlinkRow { values: [Int64(1), ByteArray([97])] }, xact_id: None, lsn: 1340855440, is_recovery: false }
+event handle: Commit { lsn: 1340855488, xact_id: None, is_recovery: false }
+event handle: PeriodicalMooncakeTableSnapshot(3d5f680d-0123-4497-bf35-e9f0e7d5b37a)
+create_snapshot_impl debug 1
+in SharedRowBuffer, buffer: UnsafeCell { .. }
+in SharedRowBuffer, length buffer: 1
+create_snapshot_impl debug 3: self.next_snapshot_task.commit_lsn_baseline 1340855488
+create_snapshot_impl debug 3: self.next_snapshot_task.prev_commit_lsn_baseline 1340855488
+create_snapshot_impl debug 3: self.next_snapshot_task.min_ongoing_flush_lsn 18446744073709551615
+event handle: PeriodicalPersistenceUpdateWal(e02addf4-b722-4eb3-8b19-af5809d0c0ca)
+spawn detached create_snapshot_async
+event handle: MooncakeTableSnapshotResult { mooncake_snapshot_result: MooncakeSnapshotOutput { uuid: 3d5f680d-0123-4497-bf35-e9f0e7d5b37a, commit: 1340855488, persistence_snapshot_payload: None, file_indices_merge_payload: Nothing, data_compaction_payload: Nothing, evicted data files count: 0, current_snapshot: None } }
+event handle: PeriodicalWalPersistenceUpdateResult { result: Ok(WalPersistenceUpdateResult { uuid: e02addf4-b722-4eb3-8b19-af5809d0c0ca, prepare_persistent_update: PreparePersistentUpdate { persistent_wal_metadata: PersistentWalMetadata { curr_file_number: 1, highest_completion_lsn: 1340855488, persistence_snapshot_lsn: None, live wal files tracker number: 1, active transactions number: 0, main transaction tracker number: 1 }, accompanying_persistence_snapshot_lsn: None, files to delete number: 0, files to persist number: 2, wal file info: Some(WalFileInfo { file_number: 0, highest_lsn: 1340855488 }) } }) }
+in handle_complete_wal_persistence_update: highest_lsn: Some(1340855488)
+highest_lsn: 1340855488
+requested_lsn: Some(1340855808)
+cached_lsn: 1340855488
+snapshot_lsn_now: 1340855488
+commit_lsn_now: 1340855488
+event handle: PeriodicalPersistenceUpdateWal(6061362a-6616-4f00-993b-535fd0ab94aa)
+event handle: PeriodicalMooncakeTableSnapshot(0885f878-774b-4954-95ea-0a362977e365)
+event handle: PeriodicalMooncakeTableSnapshot(6dfb3f71-ff6c-4322-86e6-aaf12b118808)
+event handle: PeriodicalPersistenceUpdateWal(e4c5d6dd-2d6d-47b0-aca6-065a13692cb9)
+event handle: Append { row: MoonlinkRow { values: [Int64(2), ByteArray([98])] }, xact_id: None, lsn: 1340855760, is_recovery: false }
+event handle: Append { row: MoonlinkRow { values: [Int64(3), ByteArray([99])] }, xact_id: None, lsn: 1340855760, is_recovery: false }
+event handle: Commit { lsn: 1340855808, xact_id: None, is_recovery: false }
+event handle: PeriodicalMooncakeTableSnapshot(5d324ddb-7f95-459f-bd3d-ae8628b92bfa)
+create_snapshot_impl debug 1
+in SharedRowBuffer, buffer: UnsafeCell { .. }
+in SharedRowBuffer, length buffer: 3
+create_snapshot_impl debug 3: self.next_snapshot_task.commit_lsn_baseline 1340855808
+create_snapshot_impl debug 3: self.next_snapshot_task.prev_commit_lsn_baseline 1340855808
+create_snapshot_impl debug 3: self.next_snapshot_task.min_ongoing_flush_lsn 18446744073709551615
+event handle: PeriodicalPersistenceUpdateWal(d641ee7c-446c-4165-9a67-b3000fc2545d)
+spawn detached create_snapshot_async
+event handle: MooncakeTableSnapshotResult { mooncake_snapshot_result: MooncakeSnapshotOutput { uuid: 5d324ddb-7f95-459f-bd3d-ae8628b92bfa, commit: 1340855808, persistence_snapshot_payload: None, file_indices_merge_payload: Nothing, data_compaction_payload: Nothing, evicted data files count: 0, current_snapshot: None } }
+event handle: PeriodicalWalPersistenceUpdateResult { result: Ok(WalPersistenceUpdateResult { uuid: d641ee7c-446c-4165-9a67-b3000fc2545d, prepare_persistent_update: PreparePersistentUpdate { persistent_wal_metadata: PersistentWalMetadata { curr_file_number: 2, highest_completion_lsn: 1340855808, persistence_snapshot_lsn: None, live wal files tracker number: 2, active transactions number: 0, main transaction tracker number: 2 }, accompanying_persistence_snapshot_lsn: None, files to delete number: 0, files to persist number: 3, wal file info: Some(WalFileInfo { file_number: 1, highest_lsn: 1340855808 }) } }) }
+in handle_complete_wal_persistence_update: highest_lsn: Some(1340855808)
+highest_lsn: 1340855808
+event handle: DropTable
+test tests::test_reconnect_resumes_replication_single_table ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 2.44s
+
+warning: field `cache` is never read
+  --> src/moonlink/src/storage/cache/metadata/moka_cache.rs:26:16
+   |
+25 | pub struct MokaCache<K, V> {
+   |            --------- field in this struct
+26 |     pub(crate) cache: Cache<K, V>,
+   |                ^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: struct `WriteOption` is never constructed
+ --> src/moonlink/src/storage/filesystem/storage_config.rs:7:12
+  |
+7 | pub struct WriteOption {
+  |            ^^^^^^^^^^^
+
+warning: struct `RestCatalogConfig` is never constructed
+ --> src/moonlink/src/storage/table/iceberg/iceberg_table_config.rs:8:12
+  |
+8 | pub struct RestCatalogConfig {
+  |            ^^^^^^^^^^^^^^^^^
+
+warning: `moonlink` (lib) generated 3 warnings
+warning: unused import: `ParquetRecordBatchReader`
+ --> src/moonlink_backend/tests/common.rs:5:36
+  |
+5 | use parquet::arrow::arrow_reader::{ParquetRecordBatchReader, ParquetRecordBatchReaderBuilder};
+  |                                    ^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `std::thread`
+ --> src/moonlink_backend/tests/test_replication_recovery.rs:9:9
+  |
+9 |     use std::thread;
+  |         ^^^^^^^^^^^
+
+warning: unused import: `std::time::Duration`
+  --> src/moonlink_backend/tests/test_replication_recovery.rs:10:9
+   |
+10 |     use std::time::Duration;
+   |         ^^^^^^^^^^^^^^^^^^^
+
+warning: `moonlink_backend` (test "test_replication_recovery") generated 3 warnings (run `cargo fix --test "test_replication_recovery"` to apply 3 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.42s
+     Running tests/test_replication_recovery.rs (target/debug/deps/test_replication_recovery-0f92b3f245d95e72)
+
+running 1 test
+in ReadStateManager, table_snapshot_watch_receiver: Receiver { shared: Shared { value: RwLock(PhantomData<std::sync::poison::rwlock::RwLock<u64>>, RwLock { data: 18446744073709551615 }), version: Version(0), is_closed: false, ref_count_rx: 2 }, version: Version(0) } and last_commit_lsn_rx: Receiver { shared: Shared { value: RwLock(PhantomData<std::sync::poison::rwlock::RwLock<u64>>, RwLock { data: 0 }), version: Version(0), is_closed: false, ref_count_rx: 1 }, version: Version(0) }
+event handle: PeriodicalPersistenceUpdateWal(b04fa1ce-ca8f-4628-b439-5f4723534b6c)
+event handle: PeriodicalMooncakeTableSnapshot(28df8415-dc79-43ba-b341-70c86ebfa326)
+event handle: ForceSnapshot { lsn: None }
+requested_lsn: Some(1340895904)
+cached_lsn: 18446744073709551615
+snapshot_lsn_now: 18446744073709551615
+commit_lsn_now: 0
+
+thread 'tests::test_reconnect_resumes_replication_single_table' panicked at src/moonlink/src/union_read/read_state_manager.rs:151:9:
+assertion failed: `(left <= right)`
+  left: `1340895904`,
+ right: `1340895624`
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+event handle: Append { row: MoonlinkRow { values: [Int64(1), ByteArray([97])] }, xact_id: None, lsn: 1340895856, is_recovery: false }
+event handle: Commit { lsn: 1340895904, xact_id: None, is_recovery: false }
+event handle: DropTable
+test tests::test_reconnect_resumes_replication_single_table ... FAILED
+
+failures:
+
+failures:
+    tests::test_reconnect_resumes_replication_single_table
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.48s
+
+error: test failed, to rerun pass `-p moonlink_backend --test test_replication_recovery`
+warning: field `cache` is never read
+  --> src/moonlink/src/storage/cache/metadata/moka_cache.rs:26:16
+   |
+25 | pub struct MokaCache<K, V> {
+   |            --------- field in this struct
+26 |     pub(crate) cache: Cache<K, V>,

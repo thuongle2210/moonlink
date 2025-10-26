@@ -160,8 +160,9 @@ pub async fn build_table_components(
     // Make a receiver first before possible mark operation, otherwise all receiver initializes with 0.
     let replication_lsn_tx = replication_state.subscribe();
     if let Some(persistence_snapshot_lsn) = last_persistence_snapshot_lsn {
-        commit_lsn_tx.send(persistence_snapshot_lsn).unwrap();
+        println!("send commit_lsn_tx: {:?}", persistence_snapshot_lsn);
         replication_state.mark(persistence_snapshot_lsn);
+        commit_lsn_tx.send(persistence_snapshot_lsn).unwrap();
     }
 
     let read_state_manager = ReadStateManager::new(

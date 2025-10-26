@@ -92,7 +92,7 @@ impl TestEnvironment {
         let temp_dir = tempdir().unwrap();
         let mut mooncake_table_config =
             MooncakeTableConfig::new(temp_dir.path().to_str().unwrap().to_string());
-        mooncake_table_config.row_identity = IdentityProp::Keys(vec![0]);
+        mooncake_table_config.row_identity = IdentityProp::FullRow; // IdentityProp::Keys(vec![0]);
         Self::new(temp_dir, mooncake_table_config).await
     }
 

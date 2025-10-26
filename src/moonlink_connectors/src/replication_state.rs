@@ -33,6 +33,7 @@ impl ReplicationState {
     /// Mark the replication position as `lsn` if it is newer than the current
     /// value.
     pub fn mark(&self, lsn: u64) {
+        // println!("replication state mark lsn: {:?}", lsn);
         if lsn > self.current.load(Ordering::SeqCst) {
             self.current.store(lsn, Ordering::SeqCst);
             // Ignore send error if there are no subscribers (e.g., during shutdown)

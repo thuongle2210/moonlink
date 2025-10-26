@@ -216,6 +216,7 @@ impl TableHandler {
                 if let Some(replay_tx) = &handler_event_replay_tx {
                     replay_tx.send(event.clone()).unwrap();
                 }
+                println!("event handle: {:?}", event);
                 match event {
                     event if event.is_ingest_event() => {
                         Self::process_cdc_table_event(event, &mut table, &mut table_handler_state)
@@ -394,9 +395,11 @@ impl TableHandler {
                             // flush if needed
                             if let Some(commit_lsn) = table_handler_state.table_consistent_view_lsn
                             {
+                                println!("in PeriodicalMooncakeTableSnapshot, commit_lsn={:?}", commit_lsn);
                                 if table_handler_state
                                     .should_force_flush(commit_lsn, table.get_last_flush_lsn())
                                 {
+                                    println!("force flush");
                                     let event_id = uuid::Uuid::new_v4();
                                     table.flush(commit_lsn, event_id).unwrap();
                                     table_handler_state.last_unflushed_commit_lsn = None;
@@ -752,7 +755,9 @@ impl TableHandler {
                                         .wal_flush_lsn_tx
                                         .send(highest_lsn)
                                         .unwrap();
+                                    println!("highest_lsn: {:?}", highest_lsn);
                                 }
+                                
                                 table_handler_state.wal_persist_ongoing = false;
 
                                 // Check whether need to drop table.

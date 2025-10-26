@@ -2,7 +2,7 @@ use arrow_array::Int64Array;
 use moonlink::row::IdentityProp;
 use moonlink_backend::table_config::{MooncakeConfig, TableConfig};
 use moonlink_metadata_store::SqliteMetadataStore;
-use parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder;
+use parquet::arrow::arrow_reader::{ParquetRecordBatchReader, ParquetRecordBatchReaderBuilder};
 use std::collections::HashMap;
 use std::env;
 use std::sync::Arc;
@@ -154,6 +154,12 @@ pub fn read_ids_from_parquet(path: &str) -> Vec<Option<i64>> {
         .unwrap()
         .build()
         .unwrap();
+    // let mut builder = ParquetRecordBatchReaderBuilder::try_new(file).unwrap();
+    // let schema = builder.schema().clone();
+    // let projection = ProjectionMask::leaves(&schema, vec![0]);
+    // builder = builder.with_projection(projection);
+    // let reader = builder.build().unwrap();
+
     let mut res = vec![];
     for batch in reader.into_iter() {
         let batch = batch.unwrap();

@@ -43,6 +43,8 @@ impl SharedRowBuffer {
 
     pub fn get_snapshot(&self) -> SharedRowBufferSnapshot {
         let length = unsafe { (*self.buffer.get()).len() };
+        println!("in SharedRowBuffer, buffer: {:?}", self.buffer.clone());
+        println!("in SharedRowBuffer, length buffer: {:?}", length);
         SharedRowBufferSnapshot {
             buffer: self.buffer.clone(),
             length,

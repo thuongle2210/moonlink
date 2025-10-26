@@ -420,6 +420,7 @@ impl MoonlinkBackend {
         // Wait for WAL flush LSN to reach the requested LSN
         let mut rx = writer.subscribe_wal_flush_lsn();
         while *rx.borrow() < lsn {
+            println!("Current WAL flush LSN: {}", *rx.borrow());
             rx.changed().await.unwrap();
         }
         Ok(())

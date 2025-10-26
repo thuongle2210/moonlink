@@ -1,6 +1,5 @@
 mod common;
 
-#[cfg(feature = "test-utils")]
 #[cfg(test)]
 mod tests {
     use super::common::{

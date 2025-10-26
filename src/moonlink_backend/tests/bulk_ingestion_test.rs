@@ -64,6 +64,8 @@ mod tests {
                     .await
                     .unwrap(),
             );
+            println!("lsn_after_insert: {:?}", ids);
+            println!("lsn_after_insert: {:?}", lsn_after_insert);
 
             // Validate mooncake snapshot.
             assert_eq!(
