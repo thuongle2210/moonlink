@@ -30,7 +30,7 @@ arrow-ipc = "55"
 arrow-schema = { version = "55", features = ["serde"] }
 async-stream = "0.3"
 async-trait = "0.1"
-backon = "1.5"
+backon = "1.6"
 bincode = { version = "2", features = ["serde"] }
 bitstream-io = "4.9"
 bytes = "1.0"
@@ -41,16 +41,16 @@ crc32fast = "1"
 datafusion = "49"
 datafusion-cli = "49"
 deltalake = "0.28"
-fastbloom = "0.12"
+fastbloom = "0.14"
 futures = { version = "0.3", default-features = false }
-hashbrown = "0.15"
-iceberg = { git = "https://github.com/apache/iceberg-rust", rev = "1de331593ea877e3a8b570e328d26f8362ad2035", default-features = false, features = [
+hashbrown = "0.16"
+iceberg = { git = "https://github.com/apache/iceberg-rust", rev = "790e0253a6d1ba83a54f51cf8a8ed62a5c2da7f5", default-features = false, features = [
   "storage-fs",
 ] }
-iceberg-catalog-glue = { git = "https://github.com/apache/iceberg-rust", rev = "1de331593ea877e3a8b570e328d26f8362ad2035" }
-iceberg-catalog-rest = { git = "https://github.com/apache/iceberg-rust", rev = "1de331593ea877e3a8b570e328d26f8362ad2035" }
+iceberg-catalog-glue = { git = "https://github.com/apache/iceberg-rust", rev = "790e0253a6d1ba83a54f51cf8a8ed62a5c2da7f5" }
+iceberg-catalog-rest = { git = "https://github.com/apache/iceberg-rust", rev = "790e0253a6d1ba83a54f51cf8a8ed62a5c2da7f5" }
 itertools = "0.14"
-lru = "0.14"
+lru = "0.16"
 moka = { version = "0.12", features = ["future"] }
 moonlink = { path = "src/moonlink" }
 moonlink_backend = { path = "src/moonlink_backend" }
@@ -112,7 +112,7 @@ serial_test = "3.0"
 smallvec = "1.15"
 tempfile = "3"
 thiserror = "2"
-tokio = { version = "1.47", default-features = false, features = [
+tokio = { version = "1.48", default-features = false, features = [
   "fs",
   "io-util",
   "macros",
@@ -129,7 +129,7 @@ tokio-postgres = { git = "https://github.com/Mooncake-labs/rust-postgres.git", r
 ] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "chrono"] }
-typed-builder = "0.20"
+typed-builder = "0.22"
 url = "2.5"
 uuid = { version = "1.18", default-features = false, features = ["v4"] }
 

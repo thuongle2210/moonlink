@@ -1,5 +1,6 @@
 pub mod error;
 pub mod event_sync;
+pub mod lsn_state;
 pub mod mooncake_table_id;
 mod observability;
 pub mod row;
@@ -11,12 +12,13 @@ mod union_read;
 
 pub use error::*;
 pub use event_sync::EventSyncSender;
+pub use lsn_state::{CommitState, ReplicationState};
 pub use mooncake_table_id::MooncakeTableId;
 pub use storage::mooncake_table::batch_id_counter::BatchIdCounter;
 pub use storage::mooncake_table::data_batches::ColumnStoreBuffer;
 pub use storage::parquet_utils::get_default_parquet_properties;
 pub use storage::storage_utils::create_data_file;
-#[cfg(feature = "catalog-glue")]
+#[cfg(all(feature = "catalog-glue", feature = "storage-s3"))]
 pub use storage::IcebergGlueCatalogConfig;
 #[cfg(feature = "catalog-rest")]
 pub use storage::IcebergRestCatalogConfig;
