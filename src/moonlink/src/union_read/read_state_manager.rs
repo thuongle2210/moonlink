@@ -4,7 +4,6 @@ use crate::storage::SnapshotTableState;
 use crate::Error;
 use crate::ReadState;
 use crate::ReadStateFilepathRemap;
-use more_asserts as ma;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use tokio::sync::{watch, RwLock};

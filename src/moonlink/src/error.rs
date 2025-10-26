@@ -223,7 +223,7 @@ impl Error {
             | Error::JoinError(err)
             | Error::PbToMoonlinkRowError(err)
             | Error::OtelExporterBuildError(err)
-            | Error::Json(err) 
+            | Error::Json(err)
             | Error::ReadStateManager(err) => err.status,
         }
     }
