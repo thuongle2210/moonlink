@@ -163,14 +163,13 @@ impl ReadStateManager {
         replication_lsn: u64,
     ) -> Result<()> {
         // validate right ordering lsn: snapshot_lsn<=commit_lsn<=replication_lsn
-        if snapshot_lsn != NO_SNAPSHOT_LSN && commit_lsn != NO_COMMIT_LSN {
-            if snapshot_lsn > commit_lsn {
+        if snapshot_lsn != NO_SNAPSHOT_LSN && commit_lsn != NO_COMMIT_LSN
+            && snapshot_lsn > commit_lsn {
                 return Err(Error::read_validation_error(format!(
                     "snapshot_lsn > commit_lsn: {} > {}",
                     snapshot_lsn, commit_lsn
                 )));
             }
-        }
         if commit_lsn > replication_lsn {
             return Err(Error::read_validation_error(format!(
                 "commit_lsn > replication_lsn: {} > {}",

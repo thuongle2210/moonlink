@@ -2,7 +2,7 @@ use arrow_array::Int64Array;
 use moonlink::row::IdentityProp;
 use moonlink_backend::table_config::{MooncakeConfig, TableConfig};
 use moonlink_metadata_store::SqliteMetadataStore;
-use parquet::arrow::arrow_reader::{ParquetRecordBatchReader, ParquetRecordBatchReaderBuilder};
+use parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder;
 use std::collections::HashMap;
 use std::env;
 use std::sync::Arc;

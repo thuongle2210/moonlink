@@ -6,8 +6,8 @@ mod tests {
         connect_to_postgres, current_wal_lsn, get_database_uri, TestGuard, DATABASE, TABLE,
     };
     use serial_test::serial;
-    use std::thread;
-    use std::time::Duration;
+    
+    
     // Helper: terminate replication using a separate connection to avoid borrowing conflicts
 
     use crate::common::nonunique_ids_from_state;
