@@ -2,6 +2,13 @@ use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 use tempfile::TempDir;
 
+use crate::storage::filesystem::accessor::factory::create_filesystem_accessor;
+#[cfg(feature = "storage-s3")]
+use crate::storage::filesystem::s3::s3_test_utils;
+#[cfg(feature = "storage-s3")]
+use crate::storage::filesystem::s3::test_guard::TestGuard as S3TestGuard;
+#[cfg(feature = "storage-s3")]
+use crate::storage::mooncake_table::table_creation_test_utils::create_delta_table_config;
 use crate::storage::mooncake_table::table_creation_test_utils::{
     create_test_table_metadata, get_delta_table_config,
 };
@@ -12,17 +19,16 @@ use crate::storage::mooncake_table::{
 };
 use crate::storage::table::common::table_manager::TableManager;
 use crate::storage::table::common::table_manager::{PersistenceFileParams, PersistenceResult};
+use crate::storage::table::deltalake::deltalake_table_config::DeltalakeTableConfig;
 use crate::storage::table::deltalake::deltalake_table_manager::DeltalakeTableManager;
-use crate::{create_data_file, FileSystemAccessor, ObjectStorageCache};
+use crate::{create_data_file, ObjectStorageCache};
 
-#[tokio::test]
-async fn test_basic_store_and_load() {
+async fn test_basic_store_and_load_impl(delta_table_config: DeltalakeTableConfig) {
     let temp_dir = TempDir::new().unwrap();
-    let table_path = temp_dir.path().to_str().unwrap().to_string();
+    let table_path = delta_table_config.location.clone();
     let mooncake_table_metadata = create_test_table_metadata(table_path.clone());
-    let filesystem_accessor = FileSystemAccessor::default_for_test(&temp_dir);
-    let delta_table_config = get_delta_table_config(&temp_dir);
-
+    let filesystem_accessor =
+        create_filesystem_accessor(delta_table_config.data_accessor_config.clone());
     let mut delta_table_manager = DeltalakeTableManager::new(
         mooncake_table_metadata.clone(),
         Arc::new(ObjectStorageCache::default_for_test(&temp_dir)), // Use independent object storage cache.
@@ -137,11 +143,26 @@ async fn test_basic_store_and_load() {
     assert_eq!(snapshot.disk_files.len(), 1);
     assert_eq!(snapshot.flush_lsn.unwrap(), flush_lsn);
 
-    // Drop table and check.
+    // Drop the table.
     delta_table_manager.drop_table().await.unwrap();
-    // Explicitly drop the file handle to release the reference count within the unix filesystem.
-    drop(temp_dir);
+    // If the delta table lives on local filesystem, it could be still referenced by temp directory variable, so still lives on filesystem.
+}
 
-    let dir_exists = tokio::fs::try_exists(table_path).await.unwrap();
-    assert!(!dir_exists);
+#[tokio::test]
+async fn test_basic_store_and_load() {
+    let temp_dir = TempDir::new().unwrap();
+    let delta_table_config = get_delta_table_config(&temp_dir);
+
+    test_basic_store_and_load_impl(delta_table_config).await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+#[cfg(feature = "storage-s3")]
+async fn test_basic_store_and_load_with_s3() {
+    deltalake::aws::register_handlers(None);
+    let (bucket, warehouse_uri) = s3_test_utils::get_test_s3_bucket_and_warehouse();
+    let _test_guard = S3TestGuard::new(bucket.clone()).await;
+    let delta_table_config = create_delta_table_config(warehouse_uri);
+
+    test_basic_store_and_load_impl(delta_table_config).await;
 }

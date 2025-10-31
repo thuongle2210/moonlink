@@ -203,6 +203,15 @@ impl From<std::string::FromUtf8Error> for Error {
     }
 }
 
+impl From<url::ParseError> for Error {
+    #[track_caller]
+    fn from(source: url::ParseError) -> Self {
+        let status = ErrorStatus::Permanent;
+
+        Error::Json(ErrorStruct::new("URL parse error".to_string(), status).with_source(source))
+    }
+}
+
 impl Error {
     pub fn get_status(&self) -> ErrorStatus {
         match self {
@@ -246,7 +255,7 @@ mod tests {
         if let Error::Io(ref inner) = io_error {
             let loc = inner.location.as_ref().unwrap();
             assert!(loc.contains("src/moonlink/src/error.rs"));
-            assert!(loc.contains("230"));
+            assert!(loc.contains("239"));
             assert!(loc.contains("9"));
         }
     }
