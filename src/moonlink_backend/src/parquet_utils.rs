@@ -3,8 +3,6 @@ use crate::error::{Error, Result};
 use std::io::SeekFrom;
 use tokio::io::AsyncReadExt;
 use tokio::io::AsyncSeekExt;
-#[warn(unused_imports)]
-use parquet::file::metadata::{ParquetMetaData, ParquetMetaDataReader};
 
 /// Parquet file footer size.
 const FOOTER_SIZE: u64 = 8;
@@ -59,6 +57,7 @@ pub(crate) async fn get_parquet_serialized_metadata(filepath: &str) -> Result<Ve
 }
 
 #[cfg(test)]
+use parquet::file::metadata::{ParquetMetaData, ParquetMetaDataReader};
 pub(crate) fn deserialize_parquet_metadata(bytes: &[u8]) -> ParquetMetaData {
     return ParquetMetaDataReader::decode_metadata(bytes).expect("Failed to decode metadata");
 }
