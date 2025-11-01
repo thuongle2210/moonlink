@@ -6,7 +6,7 @@ use tokio::io::AsyncSeekExt;
 
 #[cfg(test)]
 use parquet::file::metadata::ParquetMetaDataReader;
-
+use parquet::file::metadata::ParquetMetaData;
 /// Parquet file footer size.
 const FOOTER_SIZE: u64 = 8;
 /// Parquet file magic bytes ("PAR1").
@@ -72,8 +72,8 @@ mod tests {
     use arrow_array::{Int32Array, RecordBatch};
     use arrow_schema::{DataType, Field, Schema};
     use parquet::arrow::arrow_writer::ArrowWriter;
-    use parquet::file::statistics::Statistics;
     use parquet::file::metadata::ParquetMetaData;
+    use parquet::file::statistics::Statistics;
     use tempfile::tempdir;
 
     // // Util function to convert bytes to i32
