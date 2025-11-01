@@ -3,7 +3,7 @@ use crate::error::{Error, Result};
 use std::io::SeekFrom;
 use tokio::io::AsyncReadExt;
 use tokio::io::AsyncSeekExt;
-
+#[warn(unused_imports)]
 use parquet::file::metadata::{ParquetMetaData, ParquetMetaDataReader};
 
 /// Parquet file footer size.
