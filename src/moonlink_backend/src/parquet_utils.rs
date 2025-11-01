@@ -3,7 +3,7 @@ use crate::error::{Error, Result};
 use std::io::SeekFrom;
 use tokio::io::AsyncReadExt;
 use tokio::io::AsyncSeekExt;
-
+use parquet::file::metadata::{ParquetMetaData, ParquetMetaDataReader};
 /// Parquet file footer size.
 const FOOTER_SIZE: u64 = 8;
 /// Parquet file magic bytes ("PAR1").
@@ -56,22 +56,17 @@ pub(crate) async fn get_parquet_serialized_metadata(filepath: &str) -> Result<Ve
     Ok(buf)
 }
 
-#[cfg(test)]
-use parquet::file::metadata::ParquetMetaData;
-use parquet::file::metadata::ParquetMetaDataReader;
 pub(crate) fn deserialize_parquet_metadata(bytes: &[u8]) -> ParquetMetaData {
     ParquetMetaDataReader::decode_metadata(bytes).expect("Failed to decode metadata")
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::fs::File as StdFile;
-
+    use parquet::file::metadata::ParquetMetaData;
     use arrow_array::{Int32Array, RecordBatch};
     use arrow_schema::{DataType, Field, Schema};
     use parquet::arrow::arrow_writer::ArrowWriter;
-    use parquet::file::metadata::ParquetMetaData;
     use parquet::file::statistics::Statistics;
     use tempfile::tempdir;
 
@@ -80,7 +75,7 @@ mod tests {
         let arr: [u8; 4] = bytes.try_into().expect("slice with incorrect length");
         i32::from_le_bytes(arr)
     }
-
+    
     #[tokio::test]
     async fn test_get_parquet_serialized_metadata_basic_stats() {
         let schema = Schema::new(vec![Field::new("x", DataType::Int32, true)]);
