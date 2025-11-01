@@ -57,7 +57,8 @@ pub(crate) async fn get_parquet_serialized_metadata(filepath: &str) -> Result<Ve
 }
 
 #[cfg(test)]
-use parquet::file::metadata::{ParquetMetaData, ParquetMetaDataReader};
+use parquet::file::metadata::ParquetMetaData;
+use parquet::file::metadata::ParquetMetaDataReader;
 pub(crate) fn deserialize_parquet_metadata(bytes: &[u8]) -> ParquetMetaData {
     ParquetMetaDataReader::decode_metadata(bytes).expect("Failed to decode metadata")
 }
