@@ -73,7 +73,7 @@ mod tests {
     use arrow_schema::{DataType, Field, Schema};
     use parquet::arrow::arrow_writer::ArrowWriter;
     use parquet::file::statistics::Statistics;
-    parquet::file::metadata::ParquetMetaData;
+    use parquet::file::metadata::ParquetMetaData;
     use tempfile::tempdir;
 
     // // Util function to convert bytes to i32
