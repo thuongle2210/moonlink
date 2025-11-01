@@ -6,8 +6,6 @@ use tokio::io::AsyncSeekExt;
 
 #[cfg(test)]
 use parquet::file::metadata::ParquetMetaDataReader;
-use parquet::file::metadata::ParquetMetaData;
-
 
 /// Parquet file footer size.
 const FOOTER_SIZE: u64 = 8;
@@ -75,7 +73,7 @@ mod tests {
     use arrow_schema::{DataType, Field, Schema};
     use parquet::arrow::arrow_writer::ArrowWriter;
     use parquet::file::statistics::Statistics;
-    
+    parquet::file::metadata::ParquetMetaData;
     use tempfile::tempdir;
 
     // // Util function to convert bytes to i32
@@ -112,7 +110,11 @@ mod tests {
         assert_eq!(file_md.file_metadata().num_rows(), 5);
         assert_eq!(file_md.row_groups().len(), 1);
         assert_eq!(file_md.row_groups()[0].num_columns(), 1);
-        let col_chunk: &Statistics = file_md.row_group(0).column(0).statistics().expect("expected statistics");
+        let col_chunk: &Statistics = file_md
+            .row_group(0)
+            .column(0)
+            .statistics()
+            .expect("expected statistics");
 
         match *col_chunk {
             Statistics::Int32(ref stat) => {
@@ -128,6 +130,6 @@ mod tests {
             _ => panic!("expected int32 statistics"),
         }
         let null_count_opt = col_chunk.null_count_opt().unwrap();
-        assert_eq!(null_count_opt,1);
+        assert_eq!(null_count_opt, 1);
     }
 }
