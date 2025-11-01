@@ -4,8 +4,8 @@ use std::io::SeekFrom;
 use tokio::io::AsyncReadExt;
 use tokio::io::AsyncSeekExt;
 
-use parquet::file::metadata::ParquetMetaData;
-use parquet::file::metadata::ParquetMetaDataReader;
+use parquet::file::metadata::{ParquetMetaData, ParquetMetaDataReader};
+
 /// Parquet file footer size.
 const FOOTER_SIZE: u64 = 8;
 /// Parquet file magic bytes ("PAR1").
